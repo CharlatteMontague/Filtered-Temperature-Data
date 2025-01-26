@@ -1,1 +1,1 @@
-# Filtered-Temperature-Data
+Program reads a timestamp as well as temperature data from a file into a class vector. The code will remove any data from the vector that is 5 degrees above or below previous reading. Once all erroneous data has been removed, the code will then apply a low-pass filter and output all readings still in the vector.
