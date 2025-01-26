@@ -1,0 +1,122 @@
+#include <vector>
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <cmath>
+#include <string>
+using namespace std;
+
+struct time_temp{
+    string timeread;
+    double temperature;
+};
+
+// Before submitting your code, do step 1) and 2) below
+// 1) uncomment this part since zyBooks use it.
+/*int main(int argc, const char* argv[]) {
+    if (argc != 3)
+    {
+        std::cout << "./project1 inputFile outputFile" << std::endl;
+        return EXIT_FAILURE;
+    }
+    string inputFileName = argv[1];
+    string outputFileName = argv[2];*/
+
+///////////////////// uncomment above befofre submitting on zyBooks /////////////////
+// 2) Comment the next 3 lines below
+int main(void) {
+   string inputFileName = "testfile1";    //Do NOT change the name "inputFileName" since used above
+   string outputFileName = "outputfile1";  //Do NOT change the name "outputFileName" since used above
+   
+   //opens output file//
+   ofstream outputFile;
+   outputFile.open(outputFileName);
+   
+   //opens input file//
+   ifstream inputFile;
+   inputFile.open(inputFileName);
+   
+   vector <time_temp> reading;
+   time_temp input;
+   
+   //if problem opening file, state so//
+   if(!inputFile.is_open()){
+      cout << "Error opening file" << endl;
+   }
+   
+   //reads input temp & time into vector//
+   while(inputFile >> input.timeread >> input.temperature){
+      reading.push_back(input);
+   }
+   
+   inputFile.close();
+   
+   //compares elements//
+   for(unsigned int i = 1; i < reading.size(); i++){
+        double difference1 = 0.0;
+        int difference2 = 0;
+        string read1;
+        string read2;
+       
+        //checks if there is a gap in timestamps//
+        read1 = reading.at(i).timeread.substr(3, 4);
+        read2 = reading.at(i - 1).timeread.substr(3, 4);
+        difference2 = stoi(read1) - stoi(read2);  
+        
+        //accounts for chaning of minutes//
+        if(read1 == "00" && read2 == "59"){
+            difference2 = 1;
+        }
+      
+        if(difference2 == 1){
+            //checks if element is 
+            difference1 = abs(reading.at(i).temperature - reading.at(i-1).temperature);
+             
+            if(difference1 > 5){
+                reading.erase(reading.begin() + i);
+                i = 0; //restarts if weird data point detected//
+            }  
+        }
+   }
+   
+   for(unsigned int i = 0; i < reading.size(); i++){
+       int difference2 = 0;
+       string read1;
+       string read2;
+       
+       if(i != 0){
+            //checks if there is a gap in timestamps//
+            read1 = reading.at(i).timeread.substr(3, 4);
+            read2 = reading.at(i - 1).timeread.substr(3, 4);
+            difference2 = stoi(read1) - stoi(read2);  
+            
+            //accounts for chaning of minutes//
+            if(read1 == "00" && read2 == "59"){
+                difference2 = 1;
+            }
+       }
+       
+       //prints starting value or restarts filter if there is a gap in timestamps//
+      if((i == 0) || (difference2 != 1)){
+            outputFile << fixed << setprecision(1);
+            outputFile << reading.at(i).timeread << "\t"; 
+            outputFile << fixed << setprecision(6);
+            outputFile << reading.at(i).temperature << endl; 
+            cout << reading.at(i).temperature << endl;
+        }
+      else{
+            cout << reading.at(i).temperature << " & " << reading.at(i - 1).temperature << " = ";
+            reading.at(i).temperature = (0.9375 * reading.at(i - 1).temperature + 0.0625 * reading.at(i).temperature);
+            cout << reading.at(i).temperature << endl;
+            
+            outputFile << fixed << setprecision(1);
+            outputFile << reading.at(i).timeread << "\t"; 
+            outputFile << fixed << setprecision(6);
+            outputFile << reading.at(i).temperature << endl; 
+        }
+   }
+
+   outputFile.close(); //always close the file//
+
+   return 0;
+}
